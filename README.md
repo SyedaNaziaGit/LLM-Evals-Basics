@@ -1487,3 +1487,114 @@ Known Issues & Criticisms
 • CoT dependence complicates comparison — Because chain-of-thought is worth ~20 points, scores are highly sensitive to whether and how reasoning was elicited and parsed; always-thinking reasoning-tuned models blur the setting further.
 
 • Source contamination risk — Many reasoning questions come from public STEM problem sets that leak into training corpora; lower than MMLU's today only because the benchmark is newer, and rising as it ages.
+
+### SimpleQA
+
+4,326 short fact-seeking questions, each with a single indisputable answer, adversarially chosen to stump GPT-4.
+
+Launched Nov 2024 by OpenAI.
+
+The precise complement to MMLU: where MMLU asks a model to recognize the right answer among four options, SimpleQA asks it to recall with nothing to choose from.
+
+The same model that scores ~88% on MMLU scores under 40% here.
+
+Status is active - with the ceiling nowhere in sight.
+
+The design insight: two benchmarks in one:
+
+Every answer is classified into three outcomes, not two: correct, incorrect, or not attempted (the model declined or hedged).
+
+That third category is the whole point — it separates humility from ignorance.
+
+A model that says "I don't know" is behaving well; one that confidently states a wrong birthdate is hallucinating.
+
+The paper's ideal: "get as many questions correct as possible while not attempting the ones you're not confident about."
+
+That dual identity — factuality plus calibration — is what distinguishes it from a plain accuracy benchmark.
+
+<img width="896" height="1195" alt="image_1cc999ff" src="https://github.com/user-attachments/assets/3c56a7fb-5a14-4556-aacd-b1149609b50e" />
+
+History & lineage
+
+• 2024-11 — OpenAI releases SimpleQA, reframing factuality as short-form parametric recall with three-way grading. Launch scores are low: GPT-4o 38.2% correct, o1-preview 42.7%, with cautious models declining a third of questions.
+
+• 2025-02 — GPT-4.5 reaches ~62.5% correct, roughly halving GPT-4o's hallucination rate on the benchmark — climbing but far from solved.
+
+Task & Dataset Details
+
+Dataset coverage
+
+4,326 fact-seeking questions, each with a short, unambiguous, verifiable answer (name, date, number, place).
+
+Design criteria: the answer must be indisputable and stable, gradable by simple comparison, and hard — at least one of four frontier-model completions was wrong at collection time.
+
+Example
+
+Question: Who received the IEEE Frank Rosenblatt Award in 2010?
+
+Correct: "Michio Sugeno." — contains the reference, no contradiction ➔ correct
+
+Hallucinated: "The 2010 award went to Geoffrey Hinton." — confident, specific, wrong ➔ incorrect
+
+Humble: "I'm not certain who won that year." — declines without asserting a falsehood ➔ not attempted
+
+Binary accuracy would lump the humble answer with the hallucination (both "not correct"). SimpleQA separates them — and that separation is what lets it score calibration.
+
+The task
+
+One question in, no options, no context, no browsing — the model answers from its parameters. Output is a short free-text answer, which the model may decline ("I don't know").
+
+A prompted LLM classifier returns correct / incorrect / not attempted.
+
+Tools-off is constitutive, not a setting.
+
+The entire premise is closed-book recall.
+
+Scoring & Aggregation
+
+LLM-as-judge
+
+The wiki's first benchmark where the primary metric is judge-scored. The judge is a prompted ChatGPT classifier (GPT-4o in OpenAI's reference implementation).
+
+Three numbers from the three-way outcome
+
+• correct (headline) — fraction of all questions answered correctly;
+
+• correct given attempted — accuracy among only attempted questions;
+
+• F-score — harmonic mean of the two, ; high only when a model both knows a lot and declines when unsure.
+
+Why "not attempted" is the core
+
+It turns SimpleQA into a calibration benchmark. Two models with identical knowledge can score very differently — the one that guesses converts uncertainty into hallucinations; the one that declines converts it into abstentions (higher correct-given-attempted, better F).
+
+Run config
+
+shots        zero-shot
+
+reasoning    direct
+
+temperature  0
+
+pass@k       pass@1
+
+tools        no
+
+What It Doesn't Measure
+
+• Long-form factuality — A model can nail isolated facts yet hallucinate fluently across a paragraph.
+
+• Retrieval-augmented deployment — Tools are off by design, so it doesn't reflect the (arguably more common) real-world setting where a model can look things up.
+
+• Everyday factual reliability — The adversarial, obscure question distribution is deliberately unrepresentative of what users typically ask. It's a stress-test of parametric knowledge, not an estimate of everyday reliability. English-
+only.
+
+Known Issues & Criticisms
+
+• LLM-grader error and version drift — Scores depend on a judge that itself makes mistakes and changes over time.
+
+• Answer-key staleness — "Single indisputable answer" decays: office-holders change, records break, some facts were more contested than annotators judged. A static 2024 key slowly accumulates entries no longer quite indisputable.
+
+• Adversarial-against-GPT-4 selection bias — Questions were kept because 2024 OpenAI models failed them, so difficulty is calibrated to one model family's blind spots — subtly advantaging or disadvantaging others.
+
+
