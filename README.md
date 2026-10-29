@@ -772,3 +772,291 @@ Examples include:
 • Following brand-tone requirements.
 
 • Maintaining coherent multi-turn conversations.
+
+### Benchmarks
+
+A benchmark is a standardised test used to measure a particular model capability.
+
+Every benchmark is built from four parts.
+
+Part 1 — The dataset
+
+The dataset is the questions plus the answer key. For example GSM8K: a few thousand word problems, each paired with its correct number.
+
+"Natalia sold clips to 48 friends in April, and then she sold half as many clips in May. How many clips did she sell altogether?"
+
+Answer: 72
+
+
+Part 2 — The run configuration
+
+The run configuration is list of all settings under which the model was run during the evaluation. It has three layers:
+
+
+a) Prompt construction — how the question is worded and framed
+
+• Zero-shot vs. few-shot: do you show worked examples first? GSM8K is classically reported 8-shot. Few-shot examples reliably lift scores — they teach the model the expected format.
+
+• Chain-of-thought vs. direct: ask bluntly and models blurt a wrong number; add "think step by step" and the model works through it — 48 in April, half is 24 in May, 48+24=72 — and accuracy jumps a lot.
+
+(b) Decoding / sampling configuration
+
+• Temperature - At temperature=0 (greedy), the model picks the most likely token every time — deterministic and reproducible. Above 0, it samples, so the same prompt gives different answers on different runs. Most benchmarks use greedy 
+for reproducibility.
+
+• max_tokens - chain-of-thought needs room. Cap max_tokens too low and the model gets cut off mid-reasoning, never emits its final answer, and scores zero on a question it was solving correctly. That's not a capability failure — it's a config failure that looks identical in the score.
+
+(c) Scoring strategy & Environment
+
+• Single vs. multiple. pass@1 = one attempt. pass@k = k attempts, count it right if any succeed. maj@k (self-consistency) = sample k times, take the majority answer. These are dramatically different numbers on the same model. A model at 92% maj@8 might be 85% pass@1. If a report doesn't say which, the number is uninterpretable.
+
+• Tools on or off. A model with a Python interpreter scores very differently on math than one without. Same model, same questions, tools toggled: large score gap. GSM8K with code execution is barely the same test as GSM8K without.
+
+Part 3 — The scoring method
+
+Scoring is how an output becomes a number.
+
+(a) Extraction — finding the answer in the output. The model doesn't emit 72. It emits "Natalia sold 48 clips in April. Half of 48 is 24. So 48 + 24 = 72 clips altogether." Something must pull 72 out of that.
+
+Usually a regex ("take the last number," or parse after ####).
+
+This is fragile and rarely discussed. If the model answers 72 clips or $72 or seventy-two, does your parser catch it? A brittle extractor scores a correct model as wrong.
+
+(b) Comparison — deciding if the extracted answer is right. For GSM8K: does 72 equal the key's 72? Trivial. This is what closed-ended means: one right answer, automatic grading, nothing to argue about.
+
+Part 4 — The aggregation
+
+You've graded thousands of items, each right or wrong. Aggregation collapses them into a summary:
+920 of 1,000 → "92% on GSM8K."
+
+Aggregation has its own choices: unweighted mean vs. weighted by subject (MMLU has 57 subjects of unequal size)
+
+<img width="908" height="416" alt="image" src="https://github.com/user-attachments/assets/0b8e5e10-97be-4203-a57b-f1270d6f57f5" />
+
+<img width="603" height="363" alt="image" src="https://github.com/user-attachments/assets/0ea5b481-e567-4622-8cde-51f1f962e3a5" />
+
+### Model Eval using Benchmarks
+
+An evaluation is a loop over the dataset. Per item:
+
+1. Load the item — question + answer.
+
+2. Build the prompt — inject few-shot examples, apply the chat template, add instructions. Now you have the exact string (or message list) the model sees.
+
+3. Call the model — with the pinned decoding config (temperature, max_tokens etc.). For an API model this is an HTTP call; for a local model, a forward pass.
+
+4. Capture the raw output — and log it verbatim. This matters: when a score looks wrong, the raw outputs are the only way to tell whether the model failed or your parser did.
+
+5. Extract the answer — regex or parser pulls 72 out of the prose.
+
+6. Grade — compare against the key → 1 or 0.
+
+7. Store — per-item result, plus the prompt and output that produced it.
+
+After the loop: aggregate the per-item scores → the headline number.
+
+<img width="923" height="326" alt="image" src="https://github.com/user-attachments/assets/83fa14f9-15ce-4599-8a53-c91026f9465d" />
+
+### Need for an Eval Harness
+
+At first, evaluation seems simple:
+
+Take a question
+
+Send it to the model
+
+Check the answer
+
+Repeat for all questions
+
+But, you also need to handle things like:
+
+• Extracting the final answer correctly when the model writes The answer is C, C., or Option C
+
+• Scoring answers using the benchmark's exact method
+
+• Sending thousands of questions efficiently in batches
+
+• Retrying failed API requests
+
+• Handling rate limits
+
+An evaluation harness is a ready-made system that already handles these details.
+
+The harness already knows:
+
+1. Where to get the benchmark(GSM8K, MMLU etc.) questions
+
+2. How to format each question
+
+3. How to send it to the model
+
+4. How to extract the model's answer
+
+5. How to judge whether it is correct
+
+6. How to calculate the final benchmark score
+
+A benchmark is the exam paper.
+
+An evaluation harness is the complete exam administration system: instructions, answer-sheet format, checking rules, and score calculation.
+
+Tools such as lm-evaluation-harness, Inspect, and HELM act as an eval harness.
+
+https://github.com/EleutherAI/lm-evaluation-harness
+
+https://deepeval.com/docs/introduction
+
+### Who runs model evals?
+
+### 1. Frontier labs (the model builders)
+
+Who: OpenAI, Anthropic, Google DeepMind, Meta, Mistral, DeepSeek, Qwen — anyone shipping a model.
+
+Why they evaluate:
+
+• Internally, during development - This is the invisible majority of eval work. Evals guide pretraining decisions, post-training, which checkpoint to ship. Without them, model development is blind — you can't improve what you can't 
+measure.
+
+• Release gating - Deciding whether a model is good enough — and safe enough — to ship.
+
+• Marketing - The benchmark table in a launch post. This is the part you see.
+
+How to read their numbers: lab numbers are a ceiling, measured under favorable conditions. Biased in selection and configuration
+
+### 2. Third-party evaluators
+
+Who: Independent orgs whose product is the evaluation — LMArena (Chatbot Arena), Artificial Analysis, Epoch AI, Vals AI, and similar.
+
+Why they evaluate: it's their reason for existing. They run models independently and publish comparisons. Their business model depends on being seen as neutral.
+
+How to read their numbers:
+
+This group is the most useful to you as an engineer, for one reason: they run every model themselves, under the same conditions.
+
+They also measure what labs omit: cost and latency.
+
+### 3. Companies and AI Engineering Teams
+
+Labs measure general capability and third parties measure cross-model comparability. Nobody is measuring whether the model classifies your support emails correctly at a price you can afford.
+
+https://arena.ai/leaderboard/agent
+
+### Why Benchmarks can be misleading?
+
+1. Benchmark contamination
+
+2. Benchmark saturation
+
+3. Configuration gaming
+
+4. Aggregation
+
+<img width="1492" height="704" alt="image_e702382f" src="https://github.com/user-attachments/assets/218aaadc-826b-4165-b066-49501f4f6a55" />
+
+<img width="1312" height="810" alt="image_6fc3204d" src="https://github.com/user-attachments/assets/b9cfddac-a62e-43f8-9b90-61a40c938b1e" />
+
+### MMLU
+
+
+14,042 multiple-choice questions across 57 subjects, sourced from real exams (GRE, USMLE, AP).
+
+Launched Sept 2020 — it became the answer to "how smart is this model?"
+
+From 2021–2024, nearly every frontier model led its announcement with a MMLU number. No single benchmark has been shorthand for capability quite like it since.
+
+History & lineage
+
+• 2020-09 — Paper released; GPT-3 at 43.9% vs ~90% expert estimate frames the decade’s capability gap.
+
+• 2021–2022 — Scaling-law era scoreboard: Gopher (60.0), Chinchilla (67.6), PaLM (69.3). Chinchilla beating the 4× larger Gopher on MMLU was key evidence for compute-optimal scaling.
+
+• 2023-03 — GPT-4 hits 86.4%, within striking distance of the expert baseline; MMLU begins its transition from “frontier gap” to “table stakes.”
+
+• 2024 — Frontier convergence at 86–92%; MMLU-Redux documents the label-noise ceiling. MMLU-Pro (10 options, reasoning-heavier, cleaner labels) launches as the designated successor. Global-MMLU and MMMLU extend it multilingually.
+
+• 2025 → Frontier labs largely stop reporting MMLU in launch posts. The knowledge-benchmark frontier moves to GPQA Diamond and Humanity’s Last Exam.
+
+Still a useful sanity check for smaller models, and the shared ancestor of every successor benchmark. For frontier work today: MMLU-Pro.
+
+### Task & Dataset Details
+
+Dataset coverage
+
+14042 questions spanning across 57 subjects grouped into four categories — STEM, humanities, social sciences, and "other" (business, health, misc.) — spanning elementary to professional difficulty.
+
+Example (college physics)
+
+Question: The muon decays with a characteristic lifetime of about 10⁻⁶ second into an electron, a muon neutrino, and an electron antineutrino. The muon is forbidden from decaying into an electron and just a single neutrino by the law of conservation of
+
+(A) charge (B) mass (C) energy and momentum (D) lepton number
+
+Gold answer: D
+
+The task
+
+Each question gives a stem plus exactly four options (A–D), one correct. The model outputs a single letter.
+
+Prompts include a subject-specific instruction and, optionally, five in-domain example Q&As before the test question.
+
+Two scoring conventions
+
+Answers are extracted either generatively (parse the letter from free text) or by log-likelihood (compare the probability of each option letter).
+
+The two can disagree by 1–3 points for the same model — a classic source of evaluation discrepancies.
+
+### Two scoring conventions
+
+Answers are extracted either generatively (parse the letter from free text) or by log-likelihood (compare the probability of each option letter).
+
+The two can disagree by 1–3 points for the same model — a classic source of leaderboard discrepancies.
+
+Scoring & Aggregation
+
+Core metric
+
+Accuracy by exact match on the predicted option letter.
+
+Macro vs micro averaging
+The paper macro-averages across the 57 subjects; several labs micro-average across all 14,042 questions. Since subjects vary widely in size (100–1,534 questions), the two can differ by up to a point.
+
+Answer extraction
+
+Log-likelihood scoring vs generated-text parsing produce systematically different numbers — especially for chat-tuned models that preface answers with reasoning.
+
+Prompt format sensitivity
+
+Scores swing 1–4 points based on option formatting, presence of the "Answer:" cue, and few-shot ordering. This is why "MMLU 88.7" from two different harnesses aren't the same measurement.
+
+CoT and aggregation variants
+
+Some 2023–2024 reports quote chain-of-thought or maj@32 numbers, which aren't comparable to the standard 5-shot direct protocol.
+
+Gemini Ultra's headline 90.0% used CoT@32 — its 5-shot score was lower. Always check the footnote.
+
+Takeaway
+
+Two MMLU numbers are only comparable if averaging method, extraction convention, prompt format, and protocol (5-shot direct vs CoT/maj@k) all match.
+
+<img width="288" height="248" alt="image" src="https://github.com/user-attachments/assets/8e10d0f7-ed37-4d47-88e6-f3bcae90bc41" />
+
+What It Doesn't Measure
+
+• Reasoning depth — MMLU tests recognition of knowledge in a four-option format, not multi-step reasoning or problem-solving process.
+
+• Calibration — It says nothing about whether a model knows what it doesn't know.
+
+• Open-ended retrieval — Recognizing a correct option \(\ne \) recalling a fact without prompting.
+
+• Multilingual / localized knowledge — English-only, exam-style, and Western-curriculum-centric; strong scores say little about multilingual or culturally-localized knowledge.
+
+Known Issues & Criticisms
+
+• Label errors — ~6.5% of questions have errors (wrong/missing/multiple correct answers); virology exceeds 25%. This caps meaningful scores (MMLU-Redux, Gema et al. 2024).
+
+• Contamination — Public since 2020 and spread across the web; paraphrased leakage evades n-gram decontamination. Post-2022 scores are an upper bound.
+
+• Prompt-format gaming — Format-sensitive scores let vendors pick favorable configs; no canonical harness makes cross-vendor comparison unreliable at ±2pt.
+
+<img width="957" height="360" alt="image" src="https://github.com/user-attachments/assets/d1b4e7bd-12d5-449f-86ec-b0da929cd03f" />
+
