@@ -1279,3 +1279,211 @@ Known Issues & Criticisms
 
 • Macro-averaging distorts the aggregate — Equal weighting means a small section moves the headline as much as a large one, and the English/Chinese mix mask...
 
+GPQA
+
+Launched Nov 2023 — the "Google-proof" exam
+
+PhD-written science questions in biology, physics, and chemistry, so hard that skilled non-experts with unrestricted Google access score only 34% (22% on the hardest subset).
+
+Its differentiator is the construction: every question is validated by two domain experts, then handed to skilled non-experts with web access and 30+ minutes each.
+
+The gap is what "Google-proof" means — no amount of searching substitutes for the expertise.
+
+Status is nearing saturation, not saturated: top scores (high 80s) still sit below a low-90s label-noise ceiling, so it still discriminates among the best systems.
+
+History & lineage
+
+• 2023-11 — GPQA released; The strongest GPT-4 baseline reaches ~39% on the main set — barely above the non-experts — establishing GPQA as the hardest science benchmark of its moment.
+
+• 2024-05 → 2024-09 — GPT-4o reaches ~56% on Diamond; then OpenAI's o1 posts ~78%, the reasoning-model inflection point. OpenAI's recruited PhD experts score 69.7% on Diamond, prompting the "o1 beats PhD experts" framing — true 
+against that pool, short of the paper's 81.3%.
+
+• 2025 — Frontier reasoning models (e.g. Grok 4, ~87%) cross the paper's expert line in the models' own domains; the low-90s label-noise ceiling becomes the binding constraint.
+MMLU saturate
+↓
+breadth of know
+57 subjects
+↓
+depth of know
+
+• 2025 — Frontier reasoning models (e.g. Grok 4, ~87%) cross the paper's expert line in the models' own domains; the low-90s label-noise ceiling becomes the binding constraint.
+
+• 2024–2026 — As GPQA nears saturation, the "hard expert exam" role passes to Humanity's Last Exam (HLE).
+
+Task & Dataset Details
+
+Dataset coverage
+
+Expert-level questions in exactly three natural-science domains — biology, physics, chemistry.
+
+Example
+
+Question: A spin-½ particle is prepared in an eigenstate of \(S_{z}\) with eigenvalue \(+\hbar/2\). It is then measured along an axis in the \(x-z\) plane at angle \(\theta \) from the \(z\)-axis. What is the probability of obtaining \(+\hbar/2\)?
+
+(A) \(\cos^2(\theta/2)\) (B) \(\sin^2(\theta/2)\) (C) \(\frac{1}{2}(1 + \sin\theta)\) (correct) (D) \(\frac{1}{2}(1 + \cos\theta)\)
+
+Ships as three nested subsets: main (448 questions, full expert-written/validated set), extended (546, larger but noisier), and Diamond (198, the high-confidence core where both expert validators answered correctly and most non-
+experts got it wrong).
+
+Diamond is the headline configuration — what essentially every leaderboard and model report means by "GPQA."
+
+P/C/B
+GPQA
+├── normal main 448
+├── extended 546
+└── diamond 198
+
+The task
+
+Every question is 4-option multiple choice with one correct answer, scored by exact match on the chosen option.
+
+Scoring & Aggregation
+
+Core metric
+
+Plain exact-match accuracy on the selected option, mean over the subset's questions.
+
+Run configuration is not standardized across time
+
+The original paper reported few-shot and CoT baselines (including 5-shot CoT); the frontier
+
+Run configuration is not standardized across time
+
+The original paper reported few-shot and CoT baselines (including 5-shot CoT); the frontier era converged on zero-shot with reasoning. A "GPQA Diamond" number from 2023 and one from 2025 can differ as much from protocol as from 
+capability. Always state shots and whether reasoning/CoT was used.
+
+Run config
+
+shots        zero-shot
+
+reasoning    cot
+
+temperature  0
+
+pass@k       pass@1
+
+tools        no
+
+
+What It Doesn't Measure
+
+• General graduate knowledge — Only biology, physics, chemistry. No maths-proper, engineering, medicine, humanities, law, or social science. "Graduate-level" means "graduate-level science, in three fields."
+
+• Open-ended problem solving — The options are given; no free-response, long-horizon reasoning, or tool use.
+
+• Reasoning-trace correctness — Only the final letter is scored, so a correct answer reached by elimination or flawed working still scores.
+
+Known Issues & Criticisms
+
+• Tiny Diamond set → the sample-size trap — At 198 questions, the 95% CI is roughly ±5–6 points at frontier accuracy. Many "Model A beats Model B" claims cite 1–3 point gaps that are pure noise. The clearest illustration of the sample-size trap in the whole wiki — distrust any small Diamond gap.
+
+• "Beats PhD experts" is baseline-dependent — 81.3% (paper) vs 69.7% (OpenAI's recruited experts) on the same subset.
+
+• Contamination trending upward — The gated dataset and no-post pledge are a voluntary pledge, not a technical control — the same failed category as BIG-Bench's canary. Diamond questions have circulated since 2023 and the set is static, pushing effective risk from medium toward high.
+
+• Only three domains — The "graduate-level" brand oversells scope; it's silent on most of what a graduate education covers.
+
+MMLU-Pro
+
+MMLU rebuilt to fix its flaws
+
+Nearly every design choice targets a specific, documented MMLU failure.
+
+Re-poses the same broad "know a lot across many subjects" question in a form the frontier could no longer trivially ace — dropping accuracy 16–33 points relative to MMLU for the same models.
+
+The repairs (one-to-one with MMLU's flaws)
+
+• 10 options, not 4 — Cuts the random-guess floor from 25% to 10% and blunts distractor-elimination, so a score reflects knowing the answer, not narrowing to it.
+
+• Trivia and label noise filtered; reasoning added — Screens out the easy and the broken (MMLU-Redux put MMLU's error rate near 6.5%) and adds reasoning-heavy STEM questions, shifting from recognition toward working-it-out.
+
+• 14 broad categories, not 57 micro-subjects — MMLU's tiny subjects had useless confidence intervals (some ±8pt); consolidation gives each aggregate enough questions to mean something.
+
+The proof the redesign worked: chain-of-thought helps substantially here — often ~20 points — where it barely moved MMLU.
+
+History & lineage
+
+• 2020 — MMLU sets the template: 57 subjects, 4 options, direct-answer. Defines the knowledge-benchmark era.
+
+• 2024-06 — Two papers land days apart, one story. MMLU-Redux ("Are We Done with MMLU?", Gema et al.) audits MMLU and quantifies why it saturated — ~6.5% label
+
+Re-poses the same broad "know a lot across many subjects" question in a form the frontier could no longer trivially ace — dropping accuracy 16–33 points relative to MMLU for the same models.
+
+The repairs (one-to-one with MMLU's flaws)
+
+• 10 options, not 4 — Cuts the random-guess floor from 25% to 10% and blunts distractor-elimination, so a score reflects knowing the answer, not narrowing to it.
+
+• Trivia and label noise filtered; reasoning added — Screens out the easy and the broken (MMLU-Redux put MMLU's error rate near 6.5%) and adds reasoning-heavy STEM questions, shifting from recognition toward working-it-out.
+
+• 14 broad categories, not 57 micro-subjects — MMLU's tiny subjects had useless confidence intervals (some ±8pt); consolidation gives each aggregate enough questions to mean something.
+
+The proof the redesign worked: chain-of-thought helps substantially here — often ~20 points — where it barely moved MMLU.
+
+History & lineage
+
+• 2020 — MMLU sets the template: 57 subjects, 4 options, direct-answer. Defines the knowledge-benchmark era.
+
+• 2024-06 — Two papers land days apart, one story. MMLU-Redux ("Are We Done with MMLU?", Gema et al.) audits MMLU and quantifies why it saturated — ~6.5% label errors, ceiling near 90%. MMLU-Pro (Wang et al.) fixes it — 10 options, 
+filtered labels, reasoning-heavy questions, 14 categories — dropping frontier accuracy 16–33 points and restoring headroom.
+
+• 2024–2026 — Becomes the default "MMLU replacement" on leaderboards; frontier models climb from the low 70s (GPT-4o at launch) into the high 80s.
+
+Task & Dataset Details
+
+Dataset coverage
+
+12,032 questions across 14 disciplines — mathematics, physics, chemistry, biology, health, law, engineering, economics, psychology, business, philosophy, history, and others. Ships as one set (no nested subsets).
+
+Example
+
+Question: A 2 kg block slides down a frictionless incline of 30° from rest. What is its speed after sliding 4 m along the incline? (\(g = 9.8\text{ m/s}^2\))
+
+Options (abbreviated): (A) 4.4 m/s (B) 5.0 m/s (C) 6.3 m/s (correct) (D) 6.9 m/s (E) 8.9 m/s ... through (J).
+
+The model must compute the vertical drop (\(4 \cdot \sin 30^\circ = 2\text{ m}\)), apply energy conservation (\(v = \sqrt{2 \cdot 9.8 \cdot 2} = 6.26\text{ m/s}\)), and match to (C) — not merely recognize "kinematics." Ten options with plausible near-misses (6.9, 5.0) punish arithmetic slips. This is why CoT moves the needle here and didn't on MMLU.
+
+The task
+
+Each question is a 10-option multiple-choice item (A–J). The standard protocol prepends 5 chain-of-thought exemplars before the target question; the model outputs a reasoning trace followed by a final selected option, from which the 
+answer is parsed.
+
+Scoring & Aggregation
+
+Core metric
+
+Exact-match accuracy on the parsed final option, mean over all 12,032 questions (also broken out per discipline).
+
+Answer parsing is heuristic
+
+Extracting the final letter from a reasoning trace can slightly understate a model that reasoned correctly but formatted oddly. Report the harness and extraction method.
+
+Run config
+
+shots        5-shot
+
+reasoning    cot
+
+temperature  0
+
+pass@k       pass@1
+
+tools        no
+
+What It Doesn't Measure
+
+• Open-ended generation — The options are given; no free-response, long-horizon/agentic tasks, or tool use. Strong performance means "recognizes-and-reasons-to the right option among ten," not "can produce the answer unprompted" (what GPQA isolates).
+
+• Reasoning-trace correctness — Only the final option is scored, so a right answer from flawed working still scores.
+
+• Calibration — No test of whether a model knows what it doesn't know.
+
+Known Issues & Criticisms
+
+
+• No human baseline — Difficulty set by model-side filtering, not human testing — an ironic gap for the successor to the benchmark that popularized expert-baseline framing.
+
+• Approaching saturation — With the frontier compressed into the high 80s, top-model gaps under ~2 points are again within noise; the headroom the redesign created is largely spent.
+
+• CoT dependence complicates comparison — Because chain-of-thought is worth ~20 points, scores are highly sensitive to whether and how reasoning was elicited and parsed; always-thinking reasoning-tuned models blur the setting further.
+
+• Source contamination risk — Many reasoning questions come from public STEM problem sets that leak into training corpora; lower than MMLU's today only because the benchmark is newer, and rising as it ages.
