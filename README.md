@@ -1,4 +1,4 @@
-###  Vibe testing
+<img width="1408" height="768" alt="image_2dee36ef" src="https://github.com/user-attachments/assets/28d9dde3-168a-4302-99d6-2796a40e4801" />###  Vibe testing
 
 Vibe testing means casually trying an LLM app with a few prompts and judging it by feel.
 
@@ -2135,3 +2135,66 @@ LLM leaderboards
 11. Run all the models
 
 12. Make the decision
+
+<img width="1829" height="576" alt="image_a331e846" src="https://github.com/user-attachments/assets/d8a4a0db-2edd-4bf3-b820-61fc622fdf15" />
+
+### Evaluation Strategy:
+<img width="788" height="396" alt="image" src="https://github.com/user-attachments/assets/0e5ee868-d7a5-447c-a999-ecb6cc293dc8" />
+<img width="521" height="418" alt="image" src="https://github.com/user-attachments/assets/4edfa9ac-572e-4867-b20f-29c240d7c10c" />
+<img width="583" height="514" alt="image" src="https://github.com/user-attachments/assets/0c514ef6-c306-4c5c-b0c7-857d60453ac7" />
+<img width="1408" height="768" alt="image_d01718c4" src="https://github.com/user-attachments/assets/731f0a7c-313b-4745-a120-55001d081270" />
+<img width="1408" height="768" alt="image_3b23daf9" src="https://github.com/user-attachments/assets/33b662c2-ba8f-4113-b963-4faf97aabf9b" />
+<img width="975" height="533" alt="image" src="https://github.com/user-attachments/assets/3640db4d-a0d8-4eaa-a3be-7b70c7625229" />
+<img width="933" height="424" alt="image" src="https://github.com/user-attachments/assets/4d9d896e-d668-4951-a3aa-e5bc2b3ada5e" />
+<img width="1408" height="768" alt="image_3cc7d705" src="https://github.com/user-attachments/assets/4b84d47e-7853-4573-815c-c8d7b2bc0071" />
+
+### Setting up the Project
+
+1. Create a new folder - rag eval
+
+2. Create directory structure
+
+3. Add transcripts
+
+4. Create virtual env
+
+5. Install dependencies
+
+6. Create .env file
+
+<img width="478" height="86" alt="image" src="https://github.com/user-attachments/assets/3ba659c9-a238-4d5b-8acd-315eb67dc412" />
+
+### Retriever Evaluation
+
+The 2 failure modes of a retriever
+
+The tension between the 2
+
+Why retriever eval metrics are reference based?
+
+How do we exactly calculate recall and precision
+
+<img width="692" height="138" alt="image" src="https://github.com/user-attachments/assets/df018e6b-88b5-4862-a80d-ab933a35cde9" />
+
+#### Retriever Golden Dataset
+
+1. Hand authored
+
+2. LLM assisted drafting and Human review
+
+3. DeepEval synthesizer and Human review
+
+4. Production log mining
+
+### Generator Failure Modes:
+
+<img width="975" height="376" alt="image" src="https://github.com/user-attachments/assets/6698975f-0924-447e-bf46-2da5e1cde611" />
+
+<img width="783" height="631" alt="image" src="https://github.com/user-attachments/assets/1fe54ad7-1bd9-4155-b1d3-0e3fca7895bb" />
+
+<img width="1408" height="768" alt="image_d648d0c3" src="https://github.com/user-attachments/assets/4d876501-27ff-46fc-a6b7-f555b06b5c7d" />
+
+<img width="1408" height="768" alt="image_2dee36ef" src="https://github.com/user-attachments/assets/693676d0-6423-4b67-a694-2ab76d6a2fb8" />
+
+<img width="1408" height="768" alt="image_dba1d84d" src="https://github.com/user-attachments/assets/811a8a3a-4157-466d-9057-8b1906321eba" />
+
