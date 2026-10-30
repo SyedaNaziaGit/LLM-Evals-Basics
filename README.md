@@ -1,4 +1,4 @@
-<img width="1408" height="768" alt="image_2dee36ef" src="https://github.com/user-attachments/assets/28d9dde3-168a-4302-99d6-2796a40e4801" />###  Vibe testing
+###  Vibe testing
 
 Vibe testing means casually trying an LLM app with a few prompts and judging it by feel.
 
@@ -2195,6 +2195,8 @@ How do we exactly calculate recall and precision
 <img width="1408" height="768" alt="image_d648d0c3" src="https://github.com/user-attachments/assets/4d876501-27ff-46fc-a6b7-f555b06b5c7d" />
 
 <img width="1408" height="768" alt="image_2dee36ef" src="https://github.com/user-attachments/assets/693676d0-6423-4b67-a694-2ab76d6a2fb8" />
+
+<img width="1408" height="768" alt="image_2dee36ef" src="https://github.com/user-attachments/assets/28d9dde3-168a-4302-99d6-2796a40e4801" />
 
 <img width="1408" height="768" alt="image_dba1d84d" src="https://github.com/user-attachments/assets/811a8a3a-4157-466d-9057-8b1906321eba" />
 
