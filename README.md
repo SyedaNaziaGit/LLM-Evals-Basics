@@ -1,4 +1,4 @@
-# LLM-Evals-Basics
+<img width="847" height="809" alt="image" src="https://github.com/user-attachments/assets/6ae5f291-b94d-48f5-93b1-cddc84d69b2b" /># LLM-Evals-Basics
 
 ###  Vibe testing
 
@@ -1596,5 +1596,487 @@ Known Issues & Criticisms
 • Answer-key staleness — "Single indisputable answer" decays: office-holders change, records break, some facts were more contested than annotators judged. A static 2024 key slowly accumulates entries no longer quite indisputable.
 
 • Adversarial-against-GPT-4 selection bias — Questions were kept because 2024 OpenAI models failed them, so difficulty is calibrated to one model family's blind spots — subtly advantaging or disadvantaging others.
+
+### HLE:
+
+~2,500 expert-written questions across 100+ subjects — from classics to rocket engineering — each filtered to stump frontier models.
+
+Launched Jan 2025 by the Center for AI Safety and Scale AI, designed to be the final closed-ended academic benchmark.
+
+The name is a thesis, not marketing: if models saturate a broad, expert-level, unambiguous-answer exam this hard, then closed-ended question answering has nothing left to measure, and evaluation must move to open-ended, agentic tasks.
+
+Status is active. Launch scores were single digits; eighteen months later the no-tools frontier is around 38% (Gemini 3 Pro) — a steep climb, but nowhere near solved.
+
+HLE takes the same expert-authored, failure-filtered recipe like GPQA and enlarges it enormously: nearly 1,000 experts across 500+ institutions in 50 countries wrote ~2,500 questions spanning 100+ subjects.
+
+Where GPQA is deep in three sciences, HLE is deep across the whole map of human expertise — "everything a specialist knows."
+
+Two design choices make it the most rigorously-guarded benchmark catalogued here.
+
+First, a private held-out set — CAIS/Scale compare public-vs-private performance to detect benchmark-specific overfitting (the wiki's first partially-private design).
+
+Second, it reports calibration, not just accuracy — launch models were not only wrong on ~ 90% of questions but confidently wrong, stating ~90%+ confidence while failing.
+
+### History & lineage
+
+•2025-01 — HLE launches: ~1,000 experts, 100+ subjects, a hard failure-filter, a private held-out audit, and a calibration metric. Launch scores are single digits with ~90% calibration error — models confidently wrong across the board.
+
+• 2025 — The no-tools frontier climbs steeply: Grok 4 ~24% (Jul), GPT-5 ~25% (Aug), Gemini 3 Pro ~38% (Nov).
+
+• 2026 — Still active.
+
+### Task & Dataset Details
+
+Dataset coverage
+
+~2,500 questions across 100+ subjects — not just physics, chemistry, biology, but classics, ecology, linguistics, rocket engineering. (The paper originally described 3,000; post-launch expert review removed flawed items, refining to ~2,500.)
+
+Example (classics / philology — paraphrased; the set is gated)
+
+Question: In a specified line of a named Greek tragedy, identify the metrical foot at a given position and the technical name for the resolution occurring there.
+
+Reference answer: a specific, checkable term (e.g. "anapaest; resolution of the longum").
+
+The point is breadth-times-depth: no single human holds the specialist knowledge to answer this and a rocket-propulsion question and an organic-synthesis question, yet HLE asks one model to do all of it.
+
+The task
+
+Two formats.
+
+Exact-match short answer (~80%) — the model produces a specific value, name, expression, or phrase, checked for equivalence against a known solution.
+
+Multiple choice (~20%) — used where a short answer would be ambiguous.
+
+The multimodal share (comparability trap)
+
+~10% of questions require reading an image alongside the text. A model without vision (or evaluated text-only) can only be scored on the ~90% text subset — so a "text-only HLE" number is not comparable to a full-benchmark number (some 
+
+launch results, e.g. DeepSeek-R1, were text-only for exactly this reason). Always state whether multimodal questions were included.
+
+Tools off is canonical
+
+The headline number is closed-book — no browsing, no code execution, no retrieval. This matters enormously: the same model scores far higher when allowed to search.
+
+### Scoring & Aggregation
+
+Scoring & Aggregation
+
+Core metric
+
+Accuracy (no tools), mean over ~2,500 questions. Grading is LLM-as-judge for the 80% short-answer portion — a pinned GPT-4o (gpt-4o-2024-08-06) with structured decoding checks equivalence to the reference.
+
+Calibration (the second headline number)
+
+Each answer carries the model's stated confidence, and HLE reports an RMS calibration error — the root-mean-square gap between confidence and correctness. The launch finding was stark: ~80–93% error, i.e. models nearly always 
+
+confident and nearly always wrong.
+
+Takeaway
+
+Read accuracy and calibration error together — a model can raise one while the other stays bad. A bare "HLE 41" is uninterpretable without four things: tool configuration, whether multimodal questions were included, the judge version, 
+and the date.
+
+Run config
+
+Run config
+
+shots zero-shot
+
+reasoning cot
+
+temperature 0
+
+pass@k pass@1
+
+tools no
+
+
+####  What It Doesn't Measure & Known Issues
+
+What It Doesn't Measure
+
+• Open-ended or agentic problem-solving — Closed-ended, single-answer only. By its own thesis, open-ended generation, long-horizon planning, and tool use are precisely what remains once closed-ended testing saturates.
+
+• Everyday usefulness — Questions are deliberately at the edge of expert knowledge, unrepresentative of normal use.
+
+• Vision (mostly) and multilingual — English-only, and the ~10% multimodal share makes it a light vision test at best.
+
+Known Issues & Criticisms
+
+• Answer-key disputes — Experts have contested some gold answers post-launch; some items were removed in the 3,000→2,500 refinement.
+
+• LLM-judge grading errors — The GPT-4o equivalence check can mis-grade correct-but-unusually-phrased answers or accept near-misses — a source of noise and cross-version incomparability.
+
+• Failure-filter selection bias, magnified — Questions were kept only if 2024-frontier models failed them, so difficulty is calibrated to that generation's blind spots.
+
+### LLM Leaderboards & Why Leaderboards Exist
+
+LLM Leaderboards
+
+An LLM leaderboard is a public ranking or comparison table that shows how different LLMs perform on a common set of evaluations.
+
+Why Leaderboards Exist
+
+• Compare models across labs with a common reference -> also provides trust
+
+• Guide model selection when you don't have resources to run evals yourself
+
+• Detect saturation (when everyone scores 95%+, it's time for a new benchmark)
+
+• To discover new models
+
+#### Who needs them, and for what
+
+Who needs them, and for what
+
+• AI engineers — shortlisting. Narrow 100 candidates to 5 you'll actually test yourself.
+
+• Frontier labs — competitive positioning and release gating; leaderboard standing is a marketing asset and an internal go/no-go signal.
+
+• Researchers — measuring whether a new technique actually helps, against a shared baseline.
+
+• Policymakers and safety institutes — tracking capability trends for forecasting and regulation.
+
+• Open-weight ecosystem — discovery. A three-person lab with no marketing budget can appear next to a frontier model on the same table. This is genuinely one of the most underrated functions.
+
+#### Types of LLM Leaderboards - Benchmark-Specific
+
+Types of LLM Leaderboards
+
+1. Benchmark-Specific Leaderboards
+
+These rank models using the results of one particular benchmark.
+
+For example, a leaderboard may compare models only on:
+
+• MMLU
+
+• HumanEval
+
+• GSM8K
+
+• GPQA
+
+The leaderboard answers:
+
+Which model performs best on this benchmark?
+
+These leaderboards are easy to understand, but they provide only a narrow view of model performance.
+
+<img width="870" height="550" alt="image" src="https://github.com/user-attachments/assets/d5f1b484-6802-4367-9ed1-fdcd54ec56bd" />
+
+2. Multi-Benchmark Leaderboards
+
+These leaderboards compare models across multiple benchmarks and evaluation dimensions instead of relying on one test.
+
+They may measure capabilities such as:
+
+• Knowledge
+
+• Reasoning
+
+• Mathematics
+
+• Coding
+
+• Instruction-following
+
+• Data analysis
+
+Many multi-benchmark leaderboards also include practical deployment factors such as as:
+
+• Cost per token or query
+
+• Response latency
+
+• Output speed
+
+• Context-window size
+
+• Model availability
+
+• Price-to-performance ratio
+
+The results may be displayed as separate scores or combined into an overall ranking.
+
+The leaderboard answers:
+
+Which model provides the strongest overall combination of capability, cost and performance?
+
+<img width="975" height="567" alt="image" src="https://github.com/user-attachments/assets/78567d3c-ff15-433c-9cc5-e65717bd8653" />
+
+<img width="975" height="504" alt="image" src="https://github.com/user-attachments/assets/aadbfd19-af96-4351-b72e-af1104d3230e" />
+
+### 3. Human-Preference-Based Leaderboards
+
+These rank models using human votes.
+
+A user is shown responses from two anonymous models:
+
+• Response from Model A
+
+• Response from Model B
+
+The user selects which response is better.
+
+After many such comparisons, models are ranked according to how frequently their responses are preferred.
+
+The leaderboard answers:
+
+Which model's responses do users prefer?
+
+These leaderboards are useful for measuring qualities such as:
+
+• Helpfulness
+
+• Clarity
+
+• Writing quality
+
+• Creativity
+
+• Tone
+
+• Conversational ability
+
+The limitation is that the preferred answer may not always be the most factually correct answer. People may sometimes prefer an answer because it sounds confident, detailed or polished.
+
+<img width="975" height="168" alt="image" src="https://github.com/user-attachments/assets/930dc46f-9ab9-49d1-8492-31d15437c907" />
+
+• Helpfulness
+
+• Clarity
+
+• Writing quality
+
+• Creativity
+
+• Tone
+
+• Conversational ability
+
+The limitation is that the preferred answer may not always be the most factually correct answer. People may sometimes prefer an answer because it sounds confident, detailed or polished.
+
+#### 4. Application-Specific Leaderboards
+
+These evaluate models on a particular real-world task or application.
+
+Examples include:
+
+• Fixing software bugs
+
+• Calling APIs and tools
+
+• Generating SQL queries
+
+• Answering medical questions
+
+• Completing agentic tasks
+
+• Working with long documents
+
+The leaderboard answers:
+
+Which model or AI system performs best for this specific application?
+
+<img width="975" height="500" alt="image" src="https://github.com/user-attachments/assets/f1e24b19-2395-4025-bcdc-1b1884811afa" />
+
+Why can't you always trust LLM Leaderboards
+
+1. Benchmark performance may not transfer to real applications
+
+Benchmark questions are usually clean, well-defined and self-contained.
+
+Real applications involve:
+
+• Ambiguous requests
+
+• Missing information
+
+• Company-specific data
+
+• Multiple conversation turns
+
+• Tool failures
+
+• Unusual edge cases
+
+A model that performs well on academic benchmarks may still fail inside a customer-support bot, coding assistant or RAG system.
+
+Leaderboards are therefore useful for shortlisting models, but they cannot replace evaluation on your own use case.
+
+
+Why can't you always trust LLM Leaderboards (Part 2)
+
+2. Benchmark contamination can inflate scores
+
+Many benchmark questions are publicly available through papers, repositories, tutorials and websites.
+
+These questions may enter a model's training data.
+
+The model may then answer correctly because it has already seen the question, rather than because it can independently solve it.
+
+A high score may therefore reflect:
+
+• Genuine capability
+
+• Memorisation
+
+• Familiarity with similar questions
+
+This is one of the biggest threats to benchmark reliability.
+
+3. Models can be over-optimised for the leaderboard
+
+Once a leaderboard becomes influential, developers begin optimising specifically for it.
+
+They may repeatedly:
+
+1. Submit a model.
+
+2. Study its weak areas.
+
+3. modify the model, prompt or agent.
+
+Eventually, the system may become very good at that leaderboard without becoming equally better on unseen tasks.
+
+This is known as leaderboard overfitting.
+
+It reflects a broader principle called Goodhart's Law:
+
+When a measure becomes a target, it becomes less useful as a measure.
+
+4. Overall rankings depend on subjective design choices
+
+Multi-benchmark leaderboards must decide:
+
+• Which benchmarks to include
+
+• Which capabilities to exclude
+
+• How scores are normalised
+
+• How much weight each benchmark receives
+
+• Whether cost and latency should affect ranking
+
+Changing these choices can change the final ranking.
+
+For example, a coding-heavy leaderboard may favour one model, while a reasoning-heavy leaderboard may favour another.
+
+5. Small score differences may not be meaningful
+
+Leaderboards often show exact ranks even when the difference between models is tiny.
+
+For example:
+
+• Model A: 84.3
+
+• Model B: 84.1
+
+This difference may be caused by:
+
+• Prompt variations
+
+• A small test set
+
+• Evaluation noise
+
+• Automatic-grading errors
+
+A model ranked third may not be meaningfully better than the model ranked fifth.
+
+Rankings become especially unstable when confidence intervals or uncertainty estimates are not shown.
+
+6. Human-preference leaderboards have human biases
+
+Human voting is valuable for measuring helpfulness, tone and writing quality, but people may prefer answers that are:
+
+• Longer
+
+• More confident
+
+• Better formatted
+
+• More agreeable
+
+• More entertaining
+
+The preferred answer may not always be the most accurate, safest or best reasoned.
+
+The voting population may also not represent your users.
+
+Human leaderboards can also be affected by coordinated voting or attempts to identify and favour particular models.
+
+7. The scores may be stale, incomplete or self-reported
+
+A leaderboard may contain:
+
+• Results from older model versions
+
+• Missing newly released models
+
+• Discontinued models
+
+• Self-reported results that were not independently verified
+
+
+How to Read LLM Leaderboards as an AI Engineer
+
+Leaderboards are a filtering tool, not a decision tool.
+
+1. Write your requirements down before opening any board.
+
+• Task type
+
+• latency budget
+
+• cost ceiling
+
+• context needs
+
+• deployment constraints (on-prem? open weights? data retention?).
+
+Doing this first is what stops you rationalizing toward whatever is ranked #1. If they take one habit away, make it this one.
+
+2. Pick the board that matches your task, not the famous one.
+
+• agents \(\rightarrow \) SWE-bench Pro / Terminal-Bench / OSWorld
+
+• Tool use \(\rightarrow \) BFCL
+
+• Chat \(\rightarrow \) the matching LMSYS Arena sub-arena.
+
+• RAG \(\rightarrow \) MTEB
+
+• Budget-constrained \(\rightarrow \) a board carrying price and throughput.
+
+3. Read the board correctly
+
+• What exactly is scored? Answer key, test suite, human vote, or LLM judge?
+
+• Who ran the model? Independent evaluator or vendor self-report?
+
+• At what inference compute? Reasoning-effort settings change both the score and your bill.
+
+• How old is the eval set? Static and public means assume contamination pressure.
+
+• Is it saturated? If the top ten sit within a couple of points, it's over.
+
+• Where are the confidence intervals? No CI means treat adjacent ranks as tied.
+
+• If composite — what are the weights? Unpublished weights mean an unpublished opinion.
+
+4. Cut to 3-5 candidates
+
+Apply the hard filters first: license, price ceiling, latency, availability in your region.
+
+5. Run your own eval. This is where the decision happens.
+
+Fifty to a few hundred examples from your real traffic beats any public benchmark.
+
+Score on quality, cost, latency, and failure behaviour.
+
+How to run custom models evals:
 
 
