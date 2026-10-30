@@ -1,5 +1,3 @@
-<img width="847" height="809" alt="image" src="https://github.com/user-attachments/assets/6ae5f291-b94d-48f5-93b1-cddc84d69b2b" /># LLM-Evals-Basics
-
 ###  Vibe testing
 
 Vibe testing means casually trying an LLM app with a few prompts and judging it by feel.
