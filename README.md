@@ -2077,4 +2077,61 @@ Score on quality, cost, latency, and failure behaviour.
 
 How to run custom models evals:
 
+LLM leaderboards
 
+1. youre requirements
+
+2. shortlist 5-10 models
+
+3. custom model eval
+
+### Requirements
+
+1. Task
+
+2. Cost
+
+3. Latency
+
+4. Context
+
+5. Deployment
+
+6. Correctness
+<img width="975" height="934" alt="image" src="https://github.com/user-attachments/assets/71ca5637-dda9-4a2b-a3b3-4762ddc2a2bf" />
+<img width="975" height="779" alt="image" src="https://github.com/user-attachments/assets/39e22c99-5e5b-47e1-8c2d-87a6a6cc1eef" />
+<img width="975" height="595" alt="image" src="https://github.com/user-attachments/assets/191abc90-76ac-4013-aa76-21310d9a59be" />
+<img width="975" height="521" alt="image" src="https://github.com/user-attachments/assets/6e4a2554-a10f-466c-ade0-7e9b742a0ee0" />
+<img width="975" height="389" alt="image" src="https://github.com/user-attachments/assets/ff35e2b7-039c-46d9-a8b5-dd7dc979b32f" />
+<img width="975" height="439" alt="image" src="https://github.com/user-attachments/assets/127d66ed-7656-4fdc-b67c-37b7c4413a08" />
+<img width="975" height="624" alt="image" src="https://github.com/user-attachments/assets/6ad0c24e-1b63-46aa-a469-259e3740b4c6" />
+
+### Filteration
+<img width="770" height="497" alt="image" src="https://github.com/user-attachments/assets/3741db3d-0cb6-4e45-9d4a-23d9bf6e7359" />
+<img width="975" height="451" alt="image" src="https://github.com/user-attachments/assets/ecc56d3c-0f07-4ed5-87b5-3303aca4deea" />
+
+### Custom Eval
+
+1. The dataset
+
+2. Filter and load the Database
+
+3. Extract the schema
+
+4. Build the golden dataset
+
+5. Validate the golden dataset
+
+6. Store the golden dataset in csv format
+
+7. Check the flow
+
+8. Pick candidate models
+
+9. Build the evaluator
+
+10. Build the orchestrator
+
+11. Run all the models
+
+12. Make the decision
